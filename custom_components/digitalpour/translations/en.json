@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DigitalPour",
+        "description": "Set up a DigitalPour menu using companyID. locationID is fixed to 1.",
+        "data": {
+          "name": "Name",
+          "company_id": "Company ID",
+          "poll_minutes": "Update interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to fetch menu"
+    },
+    "abort": {
+      "already_configured": "This menu is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DigitalPour Options",
+        "data": {
+          "poll_minutes": "Update interval (minutes)"
+        }
+      }
+    }
+  }
+}

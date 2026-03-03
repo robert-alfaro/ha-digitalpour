@@ -1,0 +1,19 @@
+{
+  "name": "digitalpour-card",
+  "version": "0.1.0",
+  "description": "Home Assistant custom card for DigitalPour tap menus",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "lit": "^2.8.0",
+    "rollup": "^2.79.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.6.3",
+    "typescript": "^4.9.5"
+  }
+}

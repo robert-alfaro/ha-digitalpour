@@ -1,0 +1,10 @@
+{
+  "domain": "digitalpour",
+  "name": "DigitalPour",
+  "codeowners": ["@robert-alfaro"],
+  "config_flow": true,
+  "documentation": "https://fbpage.digitalpour.com",
+  "iot_class": "cloud_polling",
+  "requirements": ["beautifulsoup4==4.12.3"],
+  "version": "0.1.0"
+}
