@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DigitalPour",
-        "description": "Set up a DigitalPour menu using companyID. locationID is fixed to 1.",
+        "description": "Set up a DigitalPour menu using companyID from URL.",
         "data": {
           "name": "Name",
           "company_id": "Company ID",

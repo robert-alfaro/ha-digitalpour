@@ -1,0 +1,3 @@
+register_card_resources:
+  name: Register card resources
+  description: Re-register the DigitalPour Lovelace card resource in dashboards.

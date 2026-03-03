@@ -27,6 +27,16 @@ Reusable identifier:
    - optional name
    - poll interval in minutes
 
+## Built-in Lovelace card
+This integration ships its own card (`custom:digitalpour-card`).
+
+- The card JS is bundled at `custom_components/digitalpour/www/digitalpour-card.js`.
+- On integration setup, the file is copied to `/config/www/digitalpour/digitalpour-card.js`.
+- The integration auto-registers `/local/digitalpour/digitalpour-card.js` as a Lovelace module resource.
+
+If you need to re-register resources manually, call service:
+- `digitalpour.register_card_resources`
+
 ## Sensors created
 - `sensor.<name>_tap_count`
 - `sensor.<name>_just_tapped_count`

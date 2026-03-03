@@ -1,0 +1,36 @@
+name: Card Build
+
+on:
+  push:
+    paths:
+      - "digitalpour-card/**"
+      - "custom_components/digitalpour/www/**"
+      - ".github/workflows/card-build.yaml"
+  pull_request:
+    paths:
+      - "digitalpour-card/**"
+      - "custom_components/digitalpour/www/**"
+      - ".github/workflows/card-build.yaml"
+  workflow_dispatch:
+
+jobs:
+  build-card:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: digitalpour-card
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: digitalpour-card/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build card
+        run: npm run build
+      - name: Verify bundled integration asset is updated
+        run: |
+          cp dist/digitalpour-card.js ../custom_components/digitalpour/www/digitalpour-card.js
+          git diff --exit-code ../custom_components/digitalpour/www/digitalpour-card.js

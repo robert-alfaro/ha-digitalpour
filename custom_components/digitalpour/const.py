@@ -15,3 +15,7 @@ MAX_POLL_MINUTES = 120
 MENU_URL = "https://fbpage.digitalpour.com/"
 
 MAX_KEG_LEVEL_PX = 37.0
+
+CARD_RESOURCE_DIR = DOMAIN
+CARD_FILENAME = f"{DOMAIN}-card.js"
+SERVICE_REGISTER_CARD_RESOURCES = "register_card_resources"

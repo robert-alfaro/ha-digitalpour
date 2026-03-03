@@ -1,6 +1,6 @@
-# DigitalPour Card
+# DigitalPour Card (Bundled)
 
-A Home Assistant custom Lovelace card for displaying DigitalPour tap menus from the `sensor.*_tap_list` entity produced by this repo's DigitalPour integration.
+This folder contains the TypeScript source for the bundled `custom:digitalpour-card` Lovelace card used by the DigitalPour integration.
 
 ## Features
 - Tap list layout modeled after the DigitalPour webpage
@@ -15,30 +15,15 @@ A Home Assistant custom Lovelace card for displaying DigitalPour tap menus from 
 - Home Assistant with the DigitalPour integration from this repo
 - A `tap_list` sensor whose attributes include `taps`
 
-## Build
+## Build (for development)
 ```bash
 cd digitalpour-card
 npm install
 npm run build
+cp dist/digitalpour-card.js ../custom_components/digitalpour/www/digitalpour-card.js
 ```
 
-This outputs:
-- `dist/digitalpour-card.js`
-
-## Install in Home Assistant
-1. Copy `dist/digitalpour-card.js` to `config/www/digitalpour-card.js`.
-2. Add as a dashboard resource:
-   - URL: `/local/digitalpour-card.js`
-   - Type: `module`
-3. Add card to dashboard:
-
-```yaml
-type: custom:digitalpour-card
-entity: sensor.my_taphouse_tap_list
-title: Current Tap List
-show_logos: true
-max_rows: 30
-```
+The integration handles card installation and resource registration automatically on startup.
 
 ## Card config
 - `type` (required): `custom:digitalpour-card`
