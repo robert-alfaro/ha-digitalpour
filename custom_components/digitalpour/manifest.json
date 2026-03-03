@@ -1,11 +1,14 @@
 {
   "domain": "digitalpour",
   "name": "DigitalPour",
+  "dependencies": [],
   "after_dependencies": ["lovelace"],
   "codeowners": ["@robert-alfaro"],
   "config_flow": true,
   "documentation": "https://github.com/robert-alfaro/ha-digitalpour",
   "iot_class": "cloud_polling",
+  "integration_type": "service",
+  "issue_tracker": "https://github.com/robert-alfaro/ha-digitalpour/issues",
   "requirements": ["beautifulsoup4==4.12.3"],
   "version": "0.1.0"
 }
