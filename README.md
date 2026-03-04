@@ -51,12 +51,21 @@ If needed, run service:
 - `sensor.<name>_just_tapped_count`
 - `sensor.<name>_average_keg_level`
 - `sensor.<name>_tap_list`
+- `sensor.<name>_beverages`
+- `sensor.<name>_producers`
+- `sensor.<name>_just_tapped_taps`
 
 `tap_list` attributes include:
 - `taps` (list of objects)
-- `tap_numbers`
-- `beverages`
-- `just_tapped_taps`
+
+`beverages` sensor attributes include:
+- `beverages` (list of beverage names)
+
+`producers` sensor attributes include:
+- `producers` (unique producer names)
+
+`just_tapped_taps` sensor attributes include:
+- `just_tapped_taps` (list of tap numbers currently marked just tapped)
 
 Each tap object includes:
 - `tap_number`

@@ -52,8 +52,54 @@ SENSOR_TYPES: tuple[DigitalPourSensorDescription, ...] = (
         value_fn=lambda data: data.get("tap_count"),
         attrs_fn=lambda data: {
             "taps": data.get("taps", []),
-            "tap_numbers": [tap.get("tap_number") for tap in data.get("taps", [])],
+        },
+    ),
+    DigitalPourSensorDescription(
+        key="beverages",
+        name="Beverages",
+        icon="mdi:beer-outline",
+        value_fn=lambda data: len(
+            [tap.get("beverage") for tap in data.get("taps", []) if tap.get("beverage")]
+        ),
+        attrs_fn=lambda data: {
             "beverages": [tap.get("beverage") for tap in data.get("taps", [])],
+        },
+    ),
+    DigitalPourSensorDescription(
+        key="producers",
+        name="Producers",
+        icon="mdi:factory",
+        value_fn=lambda data: len(
+            {
+                producer
+                for producer in (tap.get("producer") for tap in data.get("taps", []))
+                if producer
+            }
+        ),
+        attrs_fn=lambda data: {
+            "producers": sorted(
+                {
+                    producer
+                    for producer in (
+                        tap.get("producer") for tap in data.get("taps", [])
+                    )
+                    if producer
+                }
+            ),
+        },
+    ),
+    DigitalPourSensorDescription(
+        key="just_tapped_taps",
+        name="Just Tapped Taps",
+        icon="mdi:star-outline",
+        value_fn=lambda data: len(
+            [
+                tap.get("tap_number")
+                for tap in data.get("taps", [])
+                if tap.get("just_tapped") is True
+            ]
+        ),
+        attrs_fn=lambda data: {
             "just_tapped_taps": [
                 tap.get("tap_number")
                 for tap in data.get("taps", [])
