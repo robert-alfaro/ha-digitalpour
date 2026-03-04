@@ -1,6 +1,6 @@
 # Home Assistant DigitalPour
 
-Custom Home Assistant integration that scrapes the DigitalPour Facebook menu interface and creates sensors for the tap data.
+Custom Home Assistant integration that scrapes the DigitalPour Facebook menu interface and creates sensors for the tap data. Built-in Lovelace card is provided.
 
 ## Install
 ### HACS (Manual Custom Repository)
@@ -36,16 +36,6 @@ Map URL values to config:
 - `companyID` -> `53053a4dfb890c0fc05243f9`
 - `locationID` -> `1`
 
-## Built-in Lovelace Card
-This integration ships its own card (`custom:digitalpour-card`).
-
-- Card JS lives at `custom_components/digitalpour/www/digitalpour-card.js`.
-- On setup, it is copied to `/config/www/digitalpour/digitalpour-card.js`.
-- The integration auto-registers `/local/digitalpour/digitalpour-card.js` as a Lovelace module resource.
-
-If needed, run service:
-- `digitalpour.register_card_resources`
-
 ## Sensors Created
 - `sensor.<name>_tap_count`
 - `sensor.<name>_just_tapped_count`
@@ -79,6 +69,54 @@ Each tap object includes:
 - `keg_level_percent`
 - `keg_level_color`
 - `logo_url`
+
+## Built-in Lovelace Card
+This integration ships its own card (`custom:digitalpour-card`).
+
+- Card JS lives at `custom_components/digitalpour/www/digitalpour-card.js`.
+- On setup, it is copied to `/config/www/digitalpour/digitalpour-card.js`.
+- The integration auto-registers `/local/digitalpour/digitalpour-card.js` as a Lovelace module resource.
+
+If needed, run service:
+- `digitalpour.register_card_resources`
+
+### Lovelace YAML Configuration
+Add the card to a dashboard with YAML like:
+
+```yaml
+type: custom:digitalpour-card
+entity: sensor.my_bar_tap_list
+title: Current Tap List
+show_title: true
+show_tap_number: true
+show_logos: true
+show_style: true
+show_details: true
+show_keg: true
+show_just_tapped: true
+show_level_percent: true
+max_rows: 20
+```
+
+#### Configuration options
+
+| Option | Required | Default | Description |
+|---|---|---|---|
+| `type` | Yes | N/A | Must be `custom:digitalpour-card` |
+| `entity` | Yes | N/A | `tap_list` sensor entity (for example `sensor.my_bar_tap_list`) |
+| `title` | No | `Current Tap List` | Card header text |
+| `show_title` | No | `true` | Show card title |
+| `show_tap_number` | No | `true` | Show tap numbers |
+| `show_logos` | No | `true` | Show producer logos |
+| `show_style` | No | `true` | Show beverage style |
+| `show_details` | No | `true` | Show detail line (location/ABV) |
+| `show_keg` | No | `true` | Show keg level bar |
+| `show_just_tapped` | No | `true` | Show `Just Tapped` badge |
+| `show_level_percent` | No | `true` | Show keg level percent label |
+| `max_rows` | No | N/A | Maximum number of taps shown |
+
+### Card Screenshot
+![DigitalPour Lovelace card screenshot](images/card.png)
 
 ## Notes
 - Data source is the DigitalPour Facebook menu interface (`fbpage.digitalpour.com`).
