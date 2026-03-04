@@ -10,18 +10,21 @@ import re
 from aiohttp import ClientError
 from bs4 import BeautifulSoup
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
     CONF_COMPANY_ID,
-    CONF_POLL_MINUTES,
+    CONF_LOCATION_ID,
+    DEFAULT_SCAN_INTERVAL_MINUTES,
     DEFAULT_LOCATION_ID,
-    DEFAULT_POLL_MINUTES,
     DOMAIN,
+    MAX_SCAN_INTERVAL_MINUTES,
     MAX_KEG_LEVEL_PX,
     MENU_URL,
+    MIN_SCAN_INTERVAL_MINUTES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,20 +55,23 @@ class DigitalPourCoordinator(DataUpdateCoordinator[dict[str, object]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.config_entry = entry
         self._company_id = entry.data[CONF_COMPANY_ID]
-        self._location_id = entry.data.get("location_id", DEFAULT_LOCATION_ID)
+        self._location_id = entry.data.get(CONF_LOCATION_ID, DEFAULT_LOCATION_ID)
 
-        poll_minutes = entry.options.get(CONF_POLL_MINUTES, DEFAULT_POLL_MINUTES)
+        scan_interval_value = entry.options.get(
+            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES
+        )
+        scan_interval = _scan_interval_to_timedelta(scan_interval_value)
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{entry.entry_id}",
-            update_interval=timedelta(minutes=poll_minutes),
+            update_interval=scan_interval,
         )
 
     @property
     def unique_prefix(self) -> str:
         """Return a stable unique prefix for entity IDs."""
-        return self._company_id
+        return f"{self._company_id}_{self._location_id}"
 
     async def _async_update_data(self) -> dict[str, object]:
         """Fetch and parse menu data."""
@@ -82,7 +88,7 @@ class DigitalPourCoordinator(DataUpdateCoordinator[dict[str, object]]):
         taps = _parse_menu(html)
         if not taps:
             raise UpdateFailed(
-                "No taps were parsed. Verify company_id for this DigitalPour menu."
+                "No taps were parsed. Verify company_id/location_id for this DigitalPour menu."
             )
 
         just_tapped_count = sum(1 for tap in taps if tap.just_tapped)
@@ -202,3 +208,24 @@ def _beverage_color(node) -> str | None:
     if not match:
         return None
     return match.group(1).upper()
+
+
+def _scan_interval_to_timedelta(value: object) -> timedelta:
+    """Convert stored scan interval value to a bounded timedelta."""
+    min_seconds = MIN_SCAN_INTERVAL_MINUTES * 60
+    max_seconds = MAX_SCAN_INTERVAL_MINUTES * 60
+
+    if isinstance(value, dict):
+        total_seconds = (
+            int(value.get("hours", 0)) * 3600
+            + int(value.get("minutes", 0)) * 60
+            + int(value.get("seconds", 0))
+        )
+    elif isinstance(value, (int, float)):
+        # Backward compatibility with older minute-based values.
+        total_seconds = int(float(value) * 60)
+    else:
+        total_seconds = DEFAULT_SCAN_INTERVAL_MINUTES * 60
+
+    total_seconds = max(min_seconds, min(total_seconds, max_seconds))
+    return timedelta(seconds=total_seconds)

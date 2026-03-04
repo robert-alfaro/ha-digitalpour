@@ -11,7 +11,12 @@ from homeassistant.components.lovelace import DOMAIN as LOVELACE_DOMAIN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_call_later
 
-from .const import CARD_FILENAME, CARD_RESOURCE_DIR, DOMAIN, SERVICE_REGISTER_CARD_RESOURCES
+from .const import (
+    CARD_FILENAME,
+    CARD_RESOURCE_DIR,
+    DOMAIN,
+    SERVICE_REGISTER_CARD_RESOURCES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,7 +56,9 @@ async def async_register_cards(hass: HomeAssistant) -> None:
 
     if not getattr(lovelace, "resources", None) or not lovelace.resources.loaded:
         _LOGGER.debug("Lovelace resources not ready; retrying card registration")
-        async_call_later(hass, 5, lambda _: hass.async_create_task(async_register_cards(hass)))
+        async_call_later(
+            hass, 5, lambda _: hass.create_task(async_register_cards(hass))
+        )
         return
 
     resources = lovelace.resources

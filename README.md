@@ -1,43 +1,52 @@
-# Home Assistant DigitalPour Integration (Custom)
+# Home Assistant DigitalPour
 
-This custom integration scrapes DigitalPour Facebook menu pages and exposes sensors for:
-- Tap count
-- Just tapped count
-- Average keg level (%)
-- Full tap list (attributes include tap number, beer name, ABV, level, just tapped)
+Custom Home Assistant integration that scrapes the DigitalPour Facebook menu interface and creates sensors for the tap data.
 
-## What was discovered from the provided URL
-Using:
+## Install
+### HACS (Manual Custom Repository)
+1. Open HACS.
+2. Go to the integrations section.
+3. Open the 3-dot menu and choose `Custom repositories`.
+4. Add this repository URL.
+5. Category: `Integration`.
+6. Install `DigitalPour` from HACS.
+7. Restart Home Assistant.
+
+### Manual
+1. Copy `custom_components/digitalpour` into your Home Assistant config directory.
+2. Restart Home Assistant.
+
+## Add to Home Assistant
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=digitalpour)
+
+## How to Setup
+In Home Assistant:
+1. Go to `Settings -> Devices & Services -> Add Integration -> DigitalPour`.
+2. Enter:
+   - `name` (user-defined; venue name is not available from this endpoint)
+   - `company id`
+   - `location id` (default is `1`)
+   - scan interval
+
+Get values from your menu URL, for example:
 
 `https://fbpage.digitalpour.com/?companyID=53053a4dfb890c0fc05243f9&locationID=1`
 
-The page is server-rendered HTML. The tap data is already present in the response markup (`div.lineItem` rows), so it can be scraped directly without running JavaScript.
+Map URL values to config:
+- `companyID` -> `53053a4dfb890c0fc05243f9`
+- `locationID` -> `1`
 
-Reusable identifier:
-- `companyID` (example: `53053a4dfb890c0fc05243f9`)
-
-`locationID` appears fixed to `1` for these fbpage menus and is hardcoded by this integration.
-
-## Install
-1. Copy `custom_components/digitalpour` into your Home Assistant config directory.
-2. Restart Home Assistant.
-3. Go to Settings -> Devices & Services -> Add Integration -> `DigitalPour`.
-4. Enter:
-   - `company_id`
-   - optional name
-   - poll interval in minutes
-
-## Built-in Lovelace card
+## Built-in Lovelace Card
 This integration ships its own card (`custom:digitalpour-card`).
 
-- The card JS is bundled at `custom_components/digitalpour/www/digitalpour-card.js`.
-- On integration setup, the file is copied to `/config/www/digitalpour/digitalpour-card.js`.
+- Card JS lives at `custom_components/digitalpour/www/digitalpour-card.js`.
+- On setup, it is copied to `/config/www/digitalpour/digitalpour-card.js`.
 - The integration auto-registers `/local/digitalpour/digitalpour-card.js` as a Lovelace module resource.
 
-If you need to re-register resources manually, call service:
+If needed, run service:
 - `digitalpour.register_card_resources`
 
-## Sensors created
+## Sensors Created
 - `sensor.<name>_tap_count`
 - `sensor.<name>_just_tapped_count`
 - `sensor.<name>_average_keg_level`
@@ -49,7 +58,7 @@ If you need to re-register resources manually, call service:
 - `beverages`
 - `just_tapped_taps`
 
-Each tap object contains:
+Each tap object includes:
 - `tap_number`
 - `producer`
 - `beverage`
@@ -63,6 +72,7 @@ Each tap object contains:
 - `logo_url`
 
 ## Notes
-- Keg level is estimated from the inline visual height (`div.kegLevel` height in pixels), scaled to percent.
-- If no taps are parsed, verify that `company_id` is valid for that venue.
-- Venue/company display name does not appear to be exposed in this page HTML, so the integration `name` remains user-provided.
+- Data source is the DigitalPour Facebook menu interface (`fbpage.digitalpour.com`).
+- Keg level is estimated from the visual height field in the HTML (`div.kegLevel`).
+- If no taps are parsed, verify `companyID` and `locationID` from the menu URL.
+- Venue/company name cannot be fetched from this interface; `name` must be user-provided.

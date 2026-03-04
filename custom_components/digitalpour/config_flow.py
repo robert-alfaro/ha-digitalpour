@@ -6,17 +6,20 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.const import CONF_NAME, CONF_SCAN_INTERVAL
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import selector
 
 from .const import (
     CONF_COMPANY_ID,
-    CONF_POLL_MINUTES,
+    CONF_LOCATION_ID,
+    DEFAULT_LOCATION_ID,
+    DEFAULT_SCAN_INTERVAL_MINUTES,
     DEFAULT_NAME,
-    DEFAULT_POLL_MINUTES,
     DOMAIN,
-    MAX_POLL_MINUTES,
-    MIN_POLL_MINUTES,
+    MAX_SCAN_INTERVAL_MINUTES,
+    MIN_SCAN_INTERVAL_MINUTES,
 )
 
 
@@ -31,9 +34,10 @@ class DigitalPourConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             company_id = user_input[CONF_COMPANY_ID].strip()
-            name = user_input["name"].strip() or DEFAULT_NAME
+            location_id = user_input[CONF_LOCATION_ID].strip()
+            name = user_input[CONF_NAME].strip() or DEFAULT_NAME
 
-            unique_id = company_id
+            unique_id = f"{company_id}_{location_id}"
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
@@ -41,22 +45,25 @@ class DigitalPourConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 title=name,
                 data={
                     CONF_COMPANY_ID: company_id,
-                    "name": name,
+                    CONF_LOCATION_ID: location_id,
+                    CONF_NAME: name,
                 },
                 options={
-                    CONF_POLL_MINUTES: user_input.get(
-                        CONF_POLL_MINUTES, DEFAULT_POLL_MINUTES
+                    CONF_SCAN_INTERVAL: _normalize_duration_input(
+                        user_input.get(CONF_SCAN_INTERVAL)
                     ),
                 },
             )
 
         schema = vol.Schema(
             {
-                vol.Required("name", default=DEFAULT_NAME): str,
+                vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
                 vol.Required(CONF_COMPANY_ID): str,
-                vol.Optional(CONF_POLL_MINUTES, default=DEFAULT_POLL_MINUTES): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_POLL_MINUTES, max=MAX_POLL_MINUTES)
-                ),
+                vol.Required(CONF_LOCATION_ID, default=DEFAULT_LOCATION_ID): str,
+                vol.Optional(
+                    CONF_SCAN_INTERVAL,
+                    default=_default_duration_dict(DEFAULT_SCAN_INTERVAL_MINUTES),
+                ): selector.selector({"duration": {}}),
             }
         )
 
@@ -85,13 +92,47 @@ class DigitalPourOptionsFlow(config_entries.OptionsFlow):
         schema = vol.Schema(
             {
                 vol.Optional(
-                    CONF_POLL_MINUTES,
-                    default=self._config_entry.options.get(
-                        CONF_POLL_MINUTES, DEFAULT_POLL_MINUTES
+                    CONF_SCAN_INTERVAL,
+                    default=_default_duration_dict(
+                        self._config_entry.options.get(
+                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES
+                        )
                     ),
-                ): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_POLL_MINUTES, max=MAX_POLL_MINUTES)
-                )
+                ): selector.selector({"duration": {}})
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)
+
+
+def _default_duration_dict(value: Any) -> dict[str, int]:
+    """Convert a stored interval value into duration selector format."""
+    if isinstance(value, dict):
+        return {
+            "hours": int(value.get("hours", 0)),
+            "minutes": int(value.get("minutes", 0)),
+            "seconds": int(value.get("seconds", 0)),
+        }
+
+    try:
+        minutes = int(value)
+    except (TypeError, ValueError):
+        minutes = DEFAULT_SCAN_INTERVAL_MINUTES
+
+    minutes = max(MIN_SCAN_INTERVAL_MINUTES, min(minutes, MAX_SCAN_INTERVAL_MINUTES))
+    return {"hours": minutes // 60, "minutes": minutes % 60, "seconds": 0}
+
+
+def _normalize_duration_input(value: Any) -> dict[str, int]:
+    """Normalize duration selector input and enforce configured bounds."""
+    raw = _default_duration_dict(value)
+    total_seconds = (
+        raw.get("hours", 0) * 3600 + raw.get("minutes", 0) * 60 + raw.get("seconds", 0)
+    )
+    min_seconds = MIN_SCAN_INTERVAL_MINUTES * 60
+    max_seconds = MAX_SCAN_INTERVAL_MINUTES * 60
+    total_seconds = max(min_seconds, min(total_seconds, max_seconds))
+
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return {"hours": hours, "minutes": minutes, "seconds": seconds}

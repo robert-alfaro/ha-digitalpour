@@ -3,11 +3,12 @@
     "step": {
       "user": {
         "title": "DigitalPour",
-        "description": "Set up a DigitalPour menu using companyID from URL.",
+        "description": "Set up a DigitalPour menu using companyID and locationID from the URL.",
         "data": {
           "name": "Name",
           "company_id": "Company ID",
-          "poll_minutes": "Update interval (minutes)"
+          "location_id": "Location ID",
+          "scan_interval": "Scan interval"
         }
       }
     },
@@ -23,7 +24,7 @@
       "init": {
         "title": "DigitalPour Options",
         "data": {
-          "poll_minutes": "Update interval (minutes)"
+          "scan_interval": "Scan interval"
         }
       }
     }
