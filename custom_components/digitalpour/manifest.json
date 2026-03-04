@@ -10,5 +10,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/robert-alfaro/ha-digitalpour/issues",
   "requirements": ["beautifulsoup4==4.12.3"],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
